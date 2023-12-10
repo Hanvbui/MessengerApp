@@ -1,0 +1,73 @@
+import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+public class MessengerApp extends Application {
+
+    private ListView<String> chatListView;
+    private TextField messageField;
+    private TextArea chatArea;
+    private ListView<String> userList;
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("Messenger App");
+
+        chatListView = new ListView<>();
+        messageField = new TextField();
+        chatArea = new TextArea();
+        userList = new ListView<>();
+
+        ObservableList<String> users = FXCollections.observableArrayList("User 1", "User 2", "User 3");
+        userList.setItems(users);
+
+        userList.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> handleUserSelection(newValue));
+
+        Button sendButton = new Button("Send");
+        sendButton.setOnAction(e -> sendMessage());
+        
+        VBox userPanel = new VBox(new Label("Users"), userList);
+        userPanel.setPrefWidth(100);
+
+        HBox inputBox = new HBox(messageField, sendButton);
+        inputBox.setSpacing(10);
+
+        VBox chatPanel = new VBox(chatListView, chatArea, inputBox);
+        chatPanel.setSpacing(10);
+        chatPanel.setAlignment(Pos.CENTER);
+
+        HBox root = new HBox(userPanel, chatPanel);
+
+        Scene scene = new Scene(root, 600, 400);
+
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    private void sendMessage() {
+        String message = messageField.getText();
+        if (!message.isEmpty()) {
+            chatListView.getItems().add("You: " + message);
+            chatArea.appendText("You: " + message + "\n");
+            messageField.clear();
+        }
+    }
+
+    private void handleUserSelection(String selectedUser) {
+        if (selectedUser != null) {
+            chatListView.getItems().clear();
+            chatArea.setText("Chat with " + selectedUser);
+        }
+    }
+}
